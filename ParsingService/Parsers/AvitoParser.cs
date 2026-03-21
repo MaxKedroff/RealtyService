@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ParsingService.Parsers
 {
-    public class AvitoParser : IParser
+    public class AvitoParser
     {
         public string ParserName => "Avito";
 

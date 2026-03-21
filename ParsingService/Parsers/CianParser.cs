@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ParsingService.Parsers
 {
-    public class CianParser : IParser
+    public class CianParser
     {
         public string ParserName => "Cian";
 

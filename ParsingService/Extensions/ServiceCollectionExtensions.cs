@@ -18,8 +18,8 @@ namespace ParsingService.Extensions
             services.AddSingleton<IExportService, ExportService>();
 
             services.AddSingleton<IParser, DomclickParser>();
-            services.AddSingleton<IParser, CianParser>();
-            services.AddSingleton<IParser, AvitoParser>();
+            //services.AddSingleton<IParser, CianParser>();
+            //services.AddSingleton<IParser, AvitoParser>();
 
             return services;
         }

@@ -24,7 +24,7 @@ namespace RealtyAnalizator.Controllers
         [HttpGet("parse/{source}")]
         public async Task<IActionResult> Parse(
             string source,
-            [FromQuery] int maxResults = 50)
+            [FromQuery] int maxResults = 1000000)
         {
             try
             {
@@ -53,7 +53,7 @@ namespace RealtyAnalizator.Controllers
         [HttpGet("parse/{source}/json")]
         public async Task<IActionResult> ParseToJson(
             string source,
-            [FromQuery] int maxResults = 50)
+            [FromQuery] int maxResults = 1000000)
         {
             try
             {
@@ -79,7 +79,7 @@ namespace RealtyAnalizator.Controllers
         [HttpGet("parse/{source}/csv")]
         public async Task<IActionResult> ParseToCsv(
             string source,
-            [FromQuery] int maxResults = 50)
+            [FromQuery] int maxResults = 1000000)
         {
             try
             {

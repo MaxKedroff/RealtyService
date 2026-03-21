@@ -1,7 +1,10 @@
 ﻿using BenchmarkDotNet.Exporters.Csv;
+using CsvHelper;
 using ParsingService.Models;
 using System;
 using System.Collections.Generic;
+using System.Formats.Asn1;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -13,16 +16,14 @@ namespace ParsingService.Services
     {
         public async Task<byte[]> ExportToCsvAsync(ParsingResult result)
         {
-            //using var memoryStream = new MemoryStream();
-            //using var writer = new StreamWriter(memoryStream);
-            //using var csv = new CsvHelper.CsvWriter(writer, System.Globalization.CultureInfo.InvariantCulture);
+            using var memoryStream = new MemoryStream();
+            using var writer = new StreamWriter(memoryStream, leaveOpen: true);
+            using var csv = new CsvWriter(writer, CultureInfo.InvariantCulture);
 
-            //// Записываем заголовки
-            //await csv.WriteRecordsAsync(result.Properties);
-            //await writer.FlushAsync();
+            await csv.WriteRecordsAsync(result.Properties);
+            await writer.FlushAsync();
 
-            //return memoryStream.ToArray();
-            throw new Exception("Not impl");
+            return memoryStream.ToArray();
         }
 
         public Task<string> ExportToJsonAsync(ParsingResult result)

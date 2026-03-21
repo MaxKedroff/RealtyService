@@ -1,5 +1,6 @@
 ﻿using BenchmarkDotNet.Exporters.Csv;
 using CsvHelper;
+using CsvHelper.Configuration;
 using ParsingService.Models;
 using System;
 using System.Collections.Generic;
@@ -17,8 +18,16 @@ namespace ParsingService.Services
         public async Task<byte[]> ExportToCsvAsync(ParsingResult result)
         {
             using var memoryStream = new MemoryStream();
-            using var writer = new StreamWriter(memoryStream, leaveOpen: true);
-            using var csv = new CsvWriter(writer, CultureInfo.InvariantCulture);
+            var encoding = new UTF8Encoding(true);
+            using var writer = new StreamWriter(memoryStream, encoding, leaveOpen: true);
+
+            var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+            {
+                Delimiter = ",",
+                Encoding = encoding
+            };
+
+            using var csv = new CsvWriter(writer, config);
 
             await csv.WriteRecordsAsync(result.Properties);
             await writer.FlushAsync();

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using ParsingService.Interfaces;
 using ParsingService.Parsers;
 using ParsingService.Services;
@@ -17,7 +18,7 @@ namespace ParsingService.Extensions
             services.AddSingleton<IParserFactory, ParserFactory>();
             services.AddSingleton<IExportService, ExportService>();
 
-            services.AddSingleton<IParser, DomclickParser>();
+            services.AddSingleton<IParser, DomclickParser>(sp => new DomclickParser(sp.GetService<ILogger<DomclickParser>>()));          
             //services.AddSingleton<IParser, CianParser>();
             //services.AddSingleton<IParser, AvitoParser>();
 

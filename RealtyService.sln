@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RealtyAnalizator", "RealtyA
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParsingService", "ParsingService\ParsingService.csproj", "{F6BFA3B9-59E3-4045-9B0F-B2B4C876B5FE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", "{2E4A401C-EF27-4DE8-A30E-ADB9ED4B1B52}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +43,18 @@ Global
 		{F6BFA3B9-59E3-4045-9B0F-B2B4C876B5FE}.Release|x64.Build.0 = Release|Any CPU
 		{F6BFA3B9-59E3-4045-9B0F-B2B4C876B5FE}.Release|x86.ActiveCfg = Release|Any CPU
 		{F6BFA3B9-59E3-4045-9B0F-B2B4C876B5FE}.Release|x86.Build.0 = Release|Any CPU
+		{2E4A401C-EF27-4DE8-A30E-ADB9ED4B1B52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E4A401C-EF27-4DE8-A30E-ADB9ED4B1B52}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E4A401C-EF27-4DE8-A30E-ADB9ED4B1B52}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2E4A401C-EF27-4DE8-A30E-ADB9ED4B1B52}.Debug|x64.Build.0 = Debug|Any CPU
+		{2E4A401C-EF27-4DE8-A30E-ADB9ED4B1B52}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{2E4A401C-EF27-4DE8-A30E-ADB9ED4B1B52}.Debug|x86.Build.0 = Debug|Any CPU
+		{2E4A401C-EF27-4DE8-A30E-ADB9ED4B1B52}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E4A401C-EF27-4DE8-A30E-ADB9ED4B1B52}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E4A401C-EF27-4DE8-A30E-ADB9ED4B1B52}.Release|x64.ActiveCfg = Release|Any CPU
+		{2E4A401C-EF27-4DE8-A30E-ADB9ED4B1B52}.Release|x64.Build.0 = Release|Any CPU
+		{2E4A401C-EF27-4DE8-A30E-ADB9ED4B1B52}.Release|x86.ActiveCfg = Release|Any CPU
+		{2E4A401C-EF27-4DE8-A30E-ADB9ED4B1B52}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

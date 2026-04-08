@@ -10,6 +10,8 @@ namespace Core.Models
         [Column("FLAT_ID")]
         public Guid FlatId { get; set; }
 
+        public string ExternalId { get; set; }
+
         [Description("Площадь квартиры")]
         [Column("FLAT_AREA")]
         public double FlatArea { get; set; }
@@ -60,7 +62,7 @@ namespace Core.Models
 
         [Description("Дата снятия с публикации")]
         [Column("FLAT_UNPUBLISHED")]
-        public DateTime FlatUnpublished { get; set; }
+        public DateTime? FlatUnpublished { get; set; }
 
         [Description("Есть ли мебель")]
         [Column("FLAT_FURNITURE")]
@@ -69,6 +71,11 @@ namespace Core.Models
         [Description("Ссылка на фотографию")]
         [Column("PICTURE_ID")]
         public string PictureUrl { get; set; }
+
+        public string Source { get; set; }
+
+        public bool IsActive { get; set; }
+
 
         [Description("Идентификатор дома")]
         [Column("BUILDING_ID")]

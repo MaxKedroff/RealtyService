@@ -14,6 +14,8 @@ namespace Core.Models
         [Column("BUILDING_ID")]
         public Guid BuildingId { get; set; }
 
+        public string ExternalId { get; set; }
+
         [Description("Адрес дома")]
         [Column("ADDRESS")]
         public required string Address { get; set; }

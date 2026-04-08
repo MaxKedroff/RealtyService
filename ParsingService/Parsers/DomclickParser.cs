@@ -241,7 +241,7 @@ namespace ParsingService.Parsers
                     DealType = flat["dealType"]?.ToString(),
                     PropertyType = flat["offerType"]?.ToString(),
                     Status = flat["status"]?.ToString(),
-                    Price = flat["price"]?.Value<decimal>() ?? 0,
+                    Price = flat["price"]?.Value<double>() ?? 0,
                     Url = flat["path"]?.ToString()
                 };
 
@@ -279,8 +279,8 @@ namespace ParsingService.Parsers
                     if (flat["generalInfo"] != null)
                     {
                         item.Area = flat["generalInfo"]["area"]?.Value<double>() ?? 0;
-                        item.Rooms = flat["generalInfo"]["rooms"]?.Value<int>();
-                        item.Floor = flat["generalInfo"]["minFloor"]?.Value<int>();
+                        item.Rooms = flat["generalInfo"]["rooms"].Value<int>();
+                        item.Floor = flat["generalInfo"]["minFloor"].Value<int>();
                     }
 
                     item.zkName = flat["complex"]["name"]?.ToString();
@@ -297,8 +297,8 @@ namespace ParsingService.Parsers
                     if (flat["objectInfo"] != null)
                     {
                         item.Area = flat["objectInfo"]["area"]?.Value<double>() ?? 0;
-                        item.Rooms = flat["objectInfo"]["rooms"]?.Value<int>();
-                        item.Floor = flat["objectInfo"]["floor"]?.Value<int>();
+                        item.Rooms = flat["objectInfo"]["rooms"].Value<int>();
+                        item.Floor = flat["objectInfo"]["floor"].Value<int>();
                     }
 
                     item.EndOfBuilding = $"{flat["house"]["buildYear"]?.ToString()} год";

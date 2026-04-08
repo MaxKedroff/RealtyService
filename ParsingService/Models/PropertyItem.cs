@@ -23,6 +23,13 @@ namespace ParsingService.Models
         public string? EndOfBuilding { get; set; }
         public string Address { get; set; }
         public string coords { get; set; }
+        public string renovation { get; set; }
+        public double areaLiving { get; set; }
+        public double areaKitchen { get; set; }
+        public bool balcony { get; set; }
+        public bool loggia { get; set; }
+        public double MetroDistance { get; set; }
+        public string wallMaterial { get; set; }
         public string planUrl { get; set; }
         public string Url { get; set; }
         public string? Description { get; set; }

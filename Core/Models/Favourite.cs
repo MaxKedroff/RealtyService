@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 
 
 namespace Core.Models
@@ -13,8 +14,16 @@ namespace Core.Models
 
 
         [Description("Избранная конфигурация параметров")]
+        [Column("PARAMETERS")]
+        public string? ParametersJson { get; set; } 
+
+        [NotMapped]
         [JsonProperty("PARAMETERS")]
-        public JObject? Parameters { get; set; }
+        public JObject? Parameters
+        {
+            get => string.IsNullOrEmpty(ParametersJson) ? null : JObject.Parse(ParametersJson);
+            set => ParametersJson = value?.ToString(Formatting.None);
+        }
 
 
         [Description("Цвет полигона")]

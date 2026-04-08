@@ -10,6 +10,8 @@ namespace Core.Models
 {
     public class Metro
     {
+        [Column("ID")]
+        public Guid MetroId { get; set; }
         [Description("Идентификатор города")]
         [Column("CITY_ID")]
         public Guid CityId { get; set; }

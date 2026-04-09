@@ -74,91 +74,98 @@ namespace ParsingService.Parsers
         private async Task<List<PropertyItem>> FetchDomclickProperties(ParsingOptions options)
         {
             var items = new List<PropertyItem>();
-            var offset = 0;
-            const int limit = 30;
-            var currentCount = 0;
-            var totalCount = 0;
+            
             var errors = new List<string>();
 
             try
             {
-                while (true)
+                var cities = new List<string> { "1d1463ae-c80f-4d19-9331-a1b68a85b553", "0d475b79-88de-4054-818c-37d8f9d0d440", "da44671f-bc1d-4ac8-994e-bba66d806f26" };
+                foreach (var cityId in cities)
                 {
-                    if (currentCount >= options.MaxResults)
-                    {
-                        _logger?.LogDebug("Reached max results limit: {MaxResults}", options.MaxResults);
-                        break;
-                    }
+                    var offset = 0;
+                    const int limit = 30;
+                    var currentCount = 0;
+                    var totalCount = 0;
 
-                    var apiUrl = BuildApiUrl(offset, limit);
-
-                    _logger?.LogDebug("Fetching Domclick data with offset: {Offset}, limit: {Limit}", offset, limit);
-
-                    var response = await MakeRequestWithRetryAsync(apiUrl);
-                    if (response.ToString().Contains("Bad Request"))
-                        return items;
-
-                    var json = JObject.Parse(response);
-
-                    if (json["error"] != null)
-                    {
-                        var errorMessage = json["error"]?.ToString() ?? "Unknown API error";
-                        _logger?.LogWarning("API returned error: {Error}", errorMessage);
-                        errors.Add($"Offset {offset}: {errorMessage}");
-                        break;
-                    }
-
-                    if (totalCount == 0)
-                    {
-                        totalCount = json["result"]?["pagination"]?["total"]?.Value<int>() ?? 0;
-                        _logger?.LogInformation("Total properties available: {TotalCount}", totalCount);
-
-                        if (totalCount == 0)
-                        {
-                            _logger?.LogWarning("No properties found");
-                            break;
-                        }
-                    }
-
-                    var flats = json["result"]?["items"];
-                    if (flats == null || !flats.HasValues)
-                    {
-                        _logger?.LogDebug("No more items at offset {Offset}", offset);
-                        break;
-                    }
-
-                    foreach (var flat in flats)
+                    while (true)
                     {
                         if (currentCount >= options.MaxResults)
                         {
+                            _logger?.LogDebug("Reached max results limit: {MaxResults}", options.MaxResults);
                             break;
                         }
 
-                        try
+                        var apiUrl = BuildApiUrl(offset, limit, cityId);
+
+                        _logger?.LogDebug("Fetching Domclick data with offset: {Offset}, limit: {Limit}", offset, limit);
+
+                        var response = await MakeRequestWithRetryAsync(apiUrl);
+                        if (response.ToString().Contains("Bad Request"))
+                            return items;
+
+                        var json = JObject.Parse(response);
+
+                        if (json["error"] != null)
                         {
-                            var item = ParsePropertyItem(flat);
-                            if (item != null)
+                            var errorMessage = json["error"]?.ToString() ?? "Unknown API error";
+                            _logger?.LogWarning("API returned error: {Error}", errorMessage);
+                            errors.Add($"Offset {offset}: {errorMessage}");
+                            break;
+                        }
+
+                        if (totalCount == 0)
+                        {
+                            totalCount = json["result"]?["pagination"]?["total"]?.Value<int>() ?? 0;
+                            _logger?.LogInformation("Total properties available: {TotalCount}", totalCount);
+
+                            if (totalCount == 0)
                             {
-                                items.Add(item);
-                                currentCount++;
+                                _logger?.LogWarning("No properties found");
+                                break;
                             }
                         }
-                        catch (Exception ex)
+
+                        var flats = json["result"]?["items"];
+                        if (flats == null || !flats.HasValues)
                         {
-                            _logger?.LogError(ex, "Error parsing individual property at offset {Offset}", offset);
-                            errors.Add($"Failed to parse property at offset {offset}: {ex.Message}");
+                            _logger?.LogDebug("No more items at offset {Offset}", offset);
+                            break;
                         }
+
+                        foreach (var flat in flats)
+                        {
+                            if (currentCount >= options.MaxResults)
+                            {
+                                break;
+                            }
+
+                            try
+                            {
+                                var item = ParsePropertyItem(flat);
+                                if (item != null)
+                                {
+                                    items.Add(item);
+                                    currentCount++;
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger?.LogError(ex, "Error parsing individual property at offset {Offset}", offset);
+                                errors.Add($"Failed to parse property at offset {offset}: {ex.Message}");
+                            }
+                        }
+
+                        if (currentCount >= totalCount || flats.Count() < limit)
+                        {
+                            _logger?.LogDebug("Reached end of data. Total parsed: {CurrentCount}", currentCount);
+                            break;
+                        }
+
+                        offset += limit;
+
+                        await Task.Delay(250);
                     }
-
-                    if (currentCount >= totalCount || flats.Count() < limit)
-                    {
-                        _logger?.LogDebug("Reached end of data. Total parsed: {CurrentCount}", currentCount);
-                        break;
-                    }
-
-                    offset += limit;
-
-                    await Task.Delay(250);
+                    totalCount = 0;
                 }
             }
             catch (Exception ex)
@@ -175,12 +182,12 @@ namespace ParsingService.Parsers
             return items;
         }
 
-        private string BuildApiUrl(int offset, int limit)
+        private string BuildApiUrl(int offset, int limit, string cityId)
         {
             var baseUrl = "https://bff-search-web.domclick.ru/api/offers/v1";
             var parameters = new List<string>
             {
-                $"address=0d475b79-88de-4054-818c-37d8f9d0d440",
+                $"address={cityId}",
                 $"offset={offset}",
                 $"limit={limit}",
                 "sort=qi",
@@ -248,6 +255,12 @@ namespace ParsingService.Parsers
                 if (flat["address"] != null)
                 {
                     item.Address = flat["address"]["displayName"]?.ToString();
+                    if (item.Address.Contains("Россия") || item.Address.Contains("область"))
+                        item.City = item.Address.Split(", ")[1];
+                    else
+                    {
+                        item.City = item.Address.Split(", ")[0];
+                    }
                 }
 
                 if (flat["location"] != null)

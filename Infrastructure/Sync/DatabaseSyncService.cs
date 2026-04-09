@@ -52,6 +52,13 @@ namespace Infrastructure.Sync
                         CreateDate = DateTime.UtcNow,
                         UpdateDate = DateTime.UtcNow
                     },
+                    new City
+                    {
+                        CityId = Guid.NewGuid(),
+                        CityName = "Екатеринбург",
+                        CreateDate = DateTime.UtcNow,
+                        UpdateDate = DateTime.UtcNow
+                    },
                 };
                 _context.Cities.AddRange(defaultCities);
                 await _context.SaveChangesAsync();
@@ -109,7 +116,7 @@ namespace Infrastructure.Sync
             try
             {
                 _logger.LogInformation("Starting synchronization for source: {Source}", source);
-                UploadDefaultCitiesIfNotExist();
+                //UploadDefaultCitiesIfNotExist();
                 var parser = _parserFactory.GetParser(source);
 
                 var options = new ParsingOptions
@@ -251,7 +258,7 @@ namespace Infrastructure.Sync
         private City GetCityByName(string city)
         {
             return _context.Cities
-                .FirstOrDefault(el => EF.Functions.Like(el.CityName, city));
+                .FirstOrDefault(el => el.CityName == city);
         }
 
         private Flat CreateFlatFromProperty(
@@ -261,6 +268,7 @@ namespace Infrastructure.Sync
         {
             var publishedDate = property.PublishedDate ?? DateTime.UtcNow;
             var isActive = (DateTime.UtcNow - publishedDate).TotalDays <= 40;
+
             var city = GetCityByName(property.City);
             return new Flat
             {

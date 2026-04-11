@@ -139,7 +139,7 @@ namespace Infrastructure.Sync
 
 
                 var existingFlats = await _context.Flats
-                    .Where(f => f.Source == "Domclick")
+                    .Where(f => f.Source == $"{source}")
                     .ToDictionaryAsync(f => f.ExternalId, f => f);
 
                 var existingBuildings = await _context.Buildings

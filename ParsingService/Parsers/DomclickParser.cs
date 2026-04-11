@@ -79,7 +79,7 @@ namespace ParsingService.Parsers
 
             try
             {
-                var cities = new List<string> { "1d1463ae-c80f-4d19-9331-a1b68a85b553", "0d475b79-88de-4054-818c-37d8f9d0d440", "da44671f-bc1d-4ac8-994e-bba66d806f26" };
+                var cities = new List<string> { "1d1463ae-c80f-4d19-9331-a1b68a85b553 20561", "0d475b79-88de-4054-818c-37d8f9d0d440 31090", "da44671f-bc1d-4ac8-994e-bba66d806f26 2299" };
                 foreach (var cityId in cities)
                 {
                     var offset = 0;
@@ -101,7 +101,7 @@ namespace ParsingService.Parsers
 
                         var response = await MakeRequestWithRetryAsync(apiUrl);
                         if (response.ToString().Contains("Bad Request"))
-                            return items;
+                            break;
 
                         var json = JObject.Parse(response);
 
@@ -167,6 +167,7 @@ namespace ParsingService.Parsers
                     }
                     totalCount = 0;
                 }
+                return items;
             }
             catch (Exception ex)
             {
@@ -184,10 +185,11 @@ namespace ParsingService.Parsers
 
         private string BuildApiUrl(int offset, int limit, string cityId)
         {
+            var cityInfo = cityId.Split(" ");
             var baseUrl = "https://bff-search-web.domclick.ru/api/offers/v1";
             var parameters = new List<string>
             {
-                $"address={cityId}",
+                $"address={cityInfo[0]}",
                 $"offset={offset}",
                 $"limit={limit}",
                 "sort=qi",
@@ -196,7 +198,7 @@ namespace ParsingService.Parsers
                 "category=living",
                 "offer_type=flat",
                 "offer_type=layout",
-                "aids=20561",
+                $"aids={cityInfo[1]}",
                 "enable_mixed_old_index=1"
             };
 

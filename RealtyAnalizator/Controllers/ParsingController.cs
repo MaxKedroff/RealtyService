@@ -8,7 +8,7 @@ namespace RealtyAnalizator.Controllers
 {
     // Api/Controllers/ParsingController.cs
     [ApiController]
-    [Route("api/v1/[controller]")]
+    [Route("api/v1/parsing")]
     public class ParsingController : ControllerBase
     {
         private readonly IParserFactory _parserFactory;

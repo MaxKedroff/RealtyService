@@ -43,5 +43,7 @@ namespace Core.Models
         [Description("Дистанция до метро в км")]
         [Column("METRO_DISTANCE")]
         public double? MetroDistance { get; set; }
+
+        public ICollection<Flat> Flats { get; set; } = new List<Flat>();
     }
 }

@@ -15,5 +15,6 @@ namespace Core.Models
 
         public List<Metro>? Metros { get; set; }
 
+        public ICollection<Flat> Flats { get; set; } = new List<Flat>();
     }
 }

@@ -1,6 +1,41 @@
-﻿namespace RealtyAnalizator.Controllers
+﻿using Application.DTOs;
+using Application.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+
+namespace RealtyAnalizator.Controllers
 {
-    public class MapController
+
+    [ApiController]
+    [Route("api/v1/map")]
+    public class MapController : ControllerBase
     {
+
+        private IMapService _service;
+
+        public MapController(IMapService service)
+        {
+            _service = service;
+        }
+
+        [HttpGet("{cityId}/buildings")]
+        public async Task<ActionResult<GetBuildingsResultDTO>> GetBuildings(
+            [FromRoute] Guid cityId,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 20)
+        {
+
+            var buildingsResult = await _service.GetBuildingsAsync(cityId, page, pageSize);
+
+            return Ok(buildingsResult);
+        }
+
+        [HttpGet("{cityId}/{buildingsId}/flats")]
+        public async Task<ActionResult<IEnumerable<FlatDTO>>> GetFlatsInBuilding(
+            [FromRoute] int cityId,
+            [FromRoute] int buildingsId)
+        {
+
+            return Ok(new { message = "Get flats in building", cityId, buildingsId });
+        }
     }
 }

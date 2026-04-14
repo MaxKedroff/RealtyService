@@ -138,9 +138,17 @@ namespace Infrastructure.Sync
                     parsingResult.Properties.Count, source);
 
 
-                var existingFlats = await _context.Flats
+                var Flats = await _context.Flats
                     .Where(f => f.Source == $"{source}")
-                    .ToDictionaryAsync(f => f.ExternalId, f => f);
+                    .ToListAsync();
+
+                Flats = Flats
+                    .GroupBy(f => f.ExternalId)
+                    .Select(g => g.OrderByDescending(f => f.FlatPublished).First())
+                    .ToList();
+
+                var existingFlats = Flats.ToDictionary(f => f.ExternalId, f => f);
+
 
                 var existingBuildings = await _context.Buildings
                     .ToDictionaryAsync(b => b.Address, b => b);
@@ -257,6 +265,9 @@ namespace Infrastructure.Sync
 
         private City GetCityByName(string city)
         {
+            if (city.Contains("Москов"))
+                return _context.Cities.FirstOrDefault(el => el.CityName.Equals("Москва"));
+
             return _context.Cities
                 .FirstOrDefault(el => el.CityName == city);
         }

@@ -31,11 +31,11 @@ namespace RealtyAnalizator.Controllers
 
         [HttpGet("{cityId}/{buildingsId}/flats")]
         public async Task<ActionResult<IEnumerable<FlatDTO>>> GetFlatsInBuilding(
-            [FromRoute] int cityId,
-            [FromRoute] int buildingsId)
+            [FromRoute] Guid cityId,
+            [FromRoute] Guid buildingsId)
         {
-
-            return Ok(new { message = "Get flats in building", cityId, buildingsId });
+            var result = await _service.GetFlatsInBuildingAsync(cityId, buildingsId);
+            return Ok(result);
         }
     }
 }

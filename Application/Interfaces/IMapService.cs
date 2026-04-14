@@ -10,6 +10,6 @@ namespace Application.Interfaces
     public interface IMapService
     {
         Task<GetBuildingsResultDTO> GetBuildingsAsync(Guid cityId, int page, int pageSize);
-        Task<IEnumerable<FlatDTO>> GetFlatsInBuildingAsync(int cityId, int buildingsId);
+        Task<IEnumerable<FlatDTO>> GetFlatsInBuildingAsync(Guid cityId, Guid buildingsId);
     }
 }

@@ -46,9 +46,29 @@ namespace Application.Services
             };
         }
 
-        public Task<IEnumerable<FlatDTO>> GetFlatsInBuildingAsync(int cityId, int buildingsId)
+        public async Task<IEnumerable<FlatDTO>> GetFlatsInBuildingAsync(Guid cityId, Guid buildingsId)
         {
-            throw new NotImplementedException();
+            var building = await _context.Buildings
+                .Include(b => b.Flats)
+                .FirstOrDefaultAsync(el => el.BuildingId == buildingsId);
+
+            if (building == null)
+                return Enumerable.Empty<FlatDTO>(); 
+
+            if (building.Flats == null)
+                return Enumerable.Empty<FlatDTO>();
+
+            return building.Flats.Where(flat => flat.IsActive).Select(el => new FlatDTO
+            {
+                Id = el.FlatId,
+                rooms = el.FlatRooms,
+                area = el.FlatArea,
+                floor = el.FlatFloor,
+                Price = el.FlatPrice,
+                SQM = el.FlatPriceSQM,
+                PictureUrl = el.PictureUrl,
+                Source = el.Source
+            }).ToList();
         }
     }
 }

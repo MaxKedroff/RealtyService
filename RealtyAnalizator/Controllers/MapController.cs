@@ -37,5 +37,12 @@ namespace RealtyAnalizator.Controllers
             var result = await _service.GetFlatsInBuildingAsync(cityId, buildingsId);
             return Ok(result);
         }
+
+        [HttpPost("search")]
+        public async Task<ActionResult<IEnumerable<FlatDTO>>> GetFlatsByFilter([FromQuery] FlatFilterDTO filterDTO)
+        {
+            var result = await _service.GetFlatsByFilter(filterDTO);
+            return Ok(result);
+        }
     }
 }

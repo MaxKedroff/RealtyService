@@ -19,5 +19,6 @@ namespace Application.DTOs
         public double SQM { get; set; }
         public string PictureUrl { get; set; }
         public string Source { get; set; }
+        public string? coords { get; set; }
     }
 }

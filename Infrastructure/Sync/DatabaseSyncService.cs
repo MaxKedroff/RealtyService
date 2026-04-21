@@ -265,7 +265,7 @@ namespace Infrastructure.Sync
 
         private City GetCityByName(string city)
         {
-            if (city.Contains("Москов"))
+            if (city.Contains("Москов") || city.Contains("Москва"))
                 return _context.Cities.FirstOrDefault(el => el.CityName.Equals("Москва"));
 
             return _context.Cities

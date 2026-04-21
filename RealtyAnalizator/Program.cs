@@ -22,6 +22,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddParsers();
 builder.Services.AddScoped<ISyncService, DatabaseSyncService>();
 builder.Services.AddScoped<IMapService, MapService>();
+builder.Services.AddScoped<PredictionService>();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())

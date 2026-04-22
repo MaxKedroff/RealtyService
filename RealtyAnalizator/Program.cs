@@ -23,6 +23,7 @@ builder.Services.AddParsers();
 builder.Services.AddScoped<ISyncService, DatabaseSyncService>();
 builder.Services.AddScoped<IMapService, MapService>();
 builder.Services.AddScoped<PredictionService>();
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
 

@@ -51,5 +51,12 @@ namespace RealtyAnalizator.Controllers
                 return StatusCode(500, new { error = "Внутренняя ошибка сервера" });
             }
         }
+
+        [HttpGet("health")]
+        public async Task<IActionResult> Health()
+        {
+            await _predictionService.RefreshMlServiceStatus();
+            return Ok(new { status = "ok", timestamp = DateTime.UtcNow });
+        }
     }
 }

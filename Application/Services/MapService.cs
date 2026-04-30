@@ -135,5 +135,61 @@ namespace Application.Services
                 Source = el.Source
             }).ToList();
         }
+
+        public async Task<HeatMapDto> GetHeatMapData(Guid cityId)
+        {
+            var buildings = await _context.Buildings
+                .Include(b => b.Flats.Where(f => f.CityId == cityId && f.IsActive))
+                .Where(b => b.Flats.Any(f => f.CityId == cityId && f.IsActive))
+                .ToListAsync();
+
+            var heatMapData = new List<HeatMapObject>();
+
+            foreach (var building in buildings)
+            {
+                if (building.Flats == null || !building.Flats.Any())
+                    continue;
+
+                var flatsList = building.Flats.ToList();
+
+                int apartmentsCount = flatsList.Count;
+                var prices = flatsList.Select(f => (decimal)f.FlatPrice).OrderBy(p => p).ToList();
+                decimal medianPrice = CalculateMedian(prices);
+
+
+
+                var heatMapObject = new HeatMapObject
+                {
+                    coordinates = building.GeoPoint,
+                    FlatsCount = apartmentsCount,
+                    YearBuilt = building.YearBuild,
+                    MedianActualPrice = medianPrice
+                };
+                heatMapData.Add(heatMapObject);
+            }
+            return new HeatMapDto
+            {
+                Amount = heatMapData.Count(),
+                HeatMapObjects = heatMapData
+            };
+        }
+
+        private decimal CalculateMedian(List<decimal> values)
+        {
+            if (values == null || values.Count == 0)
+                return 0;
+
+            int count = values.Count;
+            int middleIndex = count / 2;
+
+            if (count % 2 == 0)
+            {
+                return (values[middleIndex - 1] + values[middleIndex]) / 2;
+            }
+            else
+            {
+                return values[middleIndex];
+            }
+        }
     }
 }

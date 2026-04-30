@@ -12,5 +12,6 @@ namespace Application.Interfaces
         Task<GetBuildingsResultDTO> GetBuildingsAsync(Guid cityId, int page, int pageSize);
         Task<IEnumerable<FlatDTO>> GetFlatsInBuildingAsync(Guid cityId, Guid buildingsId);
         Task<IEnumerable<FlatDTO>> GetFlatsByFilter(FlatFilterDTO filterDTO);
+        Task<HeatMapDto> GetHeatMapData(Guid cityId);
     }
 }

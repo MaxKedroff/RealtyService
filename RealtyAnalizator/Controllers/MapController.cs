@@ -39,9 +39,16 @@ namespace RealtyAnalizator.Controllers
         }
 
         [HttpPost("search")]
-        public async Task<ActionResult<IEnumerable<FlatDTO>>> GetFlatsByFilter([FromQuery] FlatFilterDTO filterDTO)
+        public async Task<ActionResult<IEnumerable<FlatDTO>>> GetFlatsByFilter([FromBody] FlatFilterDTO filterDTO)
         {
             var result = await _service.GetFlatsByFilter(filterDTO);
+            return Ok(result);
+        }
+
+        [HttpGet("{cityId}/heatmap")]
+        public async Task<ActionResult<HeatMapDto>> BuildHeatMap([FromRoute] Guid cityId)
+        {
+            var result = await _service.GetHeatMapData(cityId);
             return Ok(result);
         }
     }

@@ -71,16 +71,6 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-    - name: Copy docker-compose.yml to server
-      run: |
-        scp -o StrictHostKeyChecking=no docker-compose.yml ${{ env.REMOTE_USER }}@${{ env.REMOTE_HOST }}:${{ env.PROJECT_PATH }}/docker-compose.yml
-
-    - name: Copy .env file to server (if exists)
-      run: |
-        if [ -f .env ]; then
-          scp -o StrictHostKeyChecking=no .env ${{ env.REMOTE_USER }}@${{ env.REMOTE_HOST }}:${{ env.PROJECT_PATH }}/.env
-        fi
-
     - name: Deploy to server
       run: |
         ssh -o StrictHostKeyChecking=no ${{ env.REMOTE_USER }}@${{ env.REMOTE_HOST }} << 'EOF'

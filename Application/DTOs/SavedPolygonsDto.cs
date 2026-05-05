@@ -8,6 +8,7 @@ namespace Application.DTOs
 {
     public class SavedPolygonsDto
     {
+        //
         public int Amount { get; set; }
         public List<PolygonDto> SavedPolygons { get; set; }
     }

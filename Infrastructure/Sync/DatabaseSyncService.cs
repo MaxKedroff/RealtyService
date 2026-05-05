@@ -345,6 +345,12 @@ namespace Infrastructure.Sync
                 updated = true;
             }
 
+            if (property.PublishedDate != existingFlat.FlatPublished)
+            {
+                existingFlat.FlatPublished = property.PublishedDate.Value;
+                updated = true;
+            }
+
             var shouldBeActive = (DateTime.UtcNow - existingFlat.FlatPublished).TotalDays <= 40;
             if (existingFlat.IsActive != shouldBeActive)
             {

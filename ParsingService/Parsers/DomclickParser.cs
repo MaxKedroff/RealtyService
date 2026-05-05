@@ -251,7 +251,8 @@ namespace ParsingService.Parsers
                     PropertyType = flat["offerType"]?.ToString(),
                     Status = flat["status"]?.ToString(),
                     Price = flat["price"]?.Value<double>() ?? 0,
-                    Url = flat["path"]?.ToString()
+                    Url = flat["path"]?.ToString(),
+                    PublishedDate = DateTime.TryParse(flat["publishedDate"]?.ToString(), out var date) ? date : null
                 };
 
                 if (flat["address"] != null)

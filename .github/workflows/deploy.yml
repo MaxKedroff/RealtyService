@@ -4,7 +4,7 @@ on:
   push:
     branches: [ master ]
     paths:
-      - 'RealtyService/**'
+      - 'RealtyAnalizator/**'
       - 'Application/**'
       - 'Domain/**'
       - 'Infrastructure/**'
@@ -52,7 +52,7 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         context: .
-        file: ./RealtyService/Dockerfile
+        file: ./RealtyAnalizator/Dockerfile
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}

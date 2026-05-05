@@ -271,6 +271,7 @@ namespace Infrastructure.Sync
             return _context.Cities
                 .FirstOrDefault(el => el.CityName == city);
         }
+        //
 
         private Flat CreateFlatFromProperty(
             PropertyItem property,

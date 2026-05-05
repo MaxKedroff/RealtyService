@@ -11,7 +11,7 @@ namespace Application.DTOs
         public Guid id { get; set; }
         public string color { get; set; }
         public string GeoPoints { get; set; }
-
+        //
         public string? Parameters { get; set; }
     }
 }

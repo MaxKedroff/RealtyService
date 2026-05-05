@@ -2,7 +2,7 @@
 WORKDIR /src
 
 COPY ["*.sln", "."]
-COPY ["RealtyAnalizator/*.csproj", "API/"]
+COPY ["RealtyAnalizator/*.csproj", "RealtyAnalizator/"]
 COPY ["Application/*.csproj", "Application/"]
 COPY ["Infrastructure/*.csproj", "Infrastructure/"]
 COPY ["Core/*.csproj", "Core/"]

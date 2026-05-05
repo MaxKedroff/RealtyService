@@ -4,7 +4,7 @@ on:
   push:
     branches: [ master ]
     paths:
-      - 'API/**'
+      - 'RealtyService/**'
       - 'Application/**'
       - 'Domain/**'
       - 'Infrastructure/**'
@@ -52,7 +52,7 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         context: .
-        file: ./API/Dockerfile
+        file: ./RealtyService/Dockerfile
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
@@ -70,11 +70,6 @@ jobs:
       uses: webfactory/ssh-agent@v0.9.0
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-    - name: Create deployment directory on server
-      run: |
-        ssh -o StrictHostKeyChecking=no ${{ env.REMOTE_USER }}@${{ env.REMOTE_HOST }} \
-          "mkdir -p ${{ env.PROJECT_PATH }}"
 
     - name: Copy docker-compose.yml to server
       run: |

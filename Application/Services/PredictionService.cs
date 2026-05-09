@@ -24,7 +24,7 @@ namespace Application.Services
             _context = context;
             _logger = logger;
             _httpClient = httpClientFactory?.CreateClient() ?? new HttpClient();
-            _mlServiceUrl = Environment.GetEnvironmentVariable("ML_SERVICE_URL") ?? "http://127.0.0.1:5000";
+            _mlServiceUrl = "http://158.160.250.189:5002";
             _mlServiceAvailable = false;
             Task.Run(async () => await CheckMlServiceHealth());
         }

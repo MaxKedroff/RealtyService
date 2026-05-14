@@ -24,7 +24,7 @@ namespace Application.Services
             _context = context;
             _logger = logger;
             _httpClient = httpClientFactory?.CreateClient() ?? new HttpClient();
-            _mlServiceUrl = "http://158.160.250.189:5002";
+            _mlServiceUrl = "https://brusnika-grade.online/ml";
             _mlServiceAvailable = false;
             Task.Run(async () => await CheckMlServiceHealth());
         }

@@ -52,6 +52,26 @@ namespace RealtyAnalizator.Controllers
             }
         }
 
+        [HttpGet("flat/{flatId}/analogs")]
+        public async Task<IActionResult> GetAnalogs(Guid flatId)
+        {
+            try
+            {
+                var result = await _predictionService.GetTopAnalogsAsync(flatId);
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка получения аналогов");
+
+                return StatusCode(500, new
+                {
+                    error = ex.Message
+                });
+            }
+        }
+
         [HttpGet("health")]
         public async Task<IActionResult> Health()
         {

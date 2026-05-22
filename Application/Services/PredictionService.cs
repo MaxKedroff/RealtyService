@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Application.DTOs;
 using Core.Models;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -183,6 +184,88 @@ namespace Application.Services
                 _logger.LogError(ex, "Ошибка при обращении к ML сервису");
                 return null;
             }
+        }
+
+        private Dictionary<string, object> BuildMlFlat(Flat flat)
+        {
+            return new Dictionary<string, object>
+            {
+                ["flat_id"] = flat.FlatId,
+                ["flat_price"] = flat.FlatPrice,
+                ["flat_area"] = flat.FlatArea,
+                ["flat_rooms"] = flat.FlatRooms,
+                ["flat_floor"] = flat.FlatFloor,
+                ["flat_area_kitchen"] = flat.FlatAreaKitchen,
+                ["flat_area_living"] = flat.FlatAreaLiving,
+                ["flat_balcony"] = flat.FlatBalcony,
+                ["flat_loggia"] = flat.FlatLoggia,
+                ["flat_furniture"] = flat.FlatFurniture,
+                ["flat_status"] = flat.FlatStatus,
+                ["city_id"] = GetGuidHash(flat.CityId)
+            };
+        }
+
+        public async Task<List<FlatAnalogDto>> GetTopAnalogsAsync(Guid flatId)
+        {
+            var flat = await _context.Flats
+                .Include(f => f.Building)
+                .Include(f => f.City)
+                .FirstOrDefaultAsync(f => f.FlatId == flatId);
+
+            if (flat == null)
+                throw new ArgumentException("Квартира не найдена");
+
+            var candidates = await _context.Flats
+                .Include(f => f.Building)
+                .Where(f =>
+                    f.FlatId != flatId &&
+                    f.CityId == flat.CityId &&
+                    f.FlatRooms == flat.FlatRooms &&
+                    Math.Abs(f.FlatArea - flat.FlatArea) <= 20
+                )
+                .Take(200)
+                .ToListAsync();
+
+            var targetFlat = BuildMlFlat(flat);
+
+            var candidateFlats = candidates
+                .Select(BuildMlFlat)
+                .ToList();
+
+            var request = new
+            {
+                target_flat = targetFlat,
+                candidate_flats = candidateFlats
+            };
+
+            var options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
+
+            var json = JsonSerializer.Serialize(request, options);
+
+            var content = new StringContent(
+                json,
+                Encoding.UTF8,
+                "application/json"
+            );
+
+            var response = await _httpClient.PostAsync(
+                $"{_mlServiceUrl}/analogs",
+                content
+            );
+
+            response.EnsureSuccessStatusCode();
+
+            var responseJson = await response.Content.ReadAsStringAsync();
+
+            var result = JsonSerializer.Deserialize<MLAnalogsResponse>(
+                responseJson,
+                options
+            );
+
+            return result?.Analogs ?? new List<FlatAnalogDto>();
         }
 
         /// <summary>

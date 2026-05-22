@@ -13,5 +13,6 @@ namespace Application.Interfaces
         Task<IEnumerable<FlatDTO>> GetFlatsInBuildingAsync(Guid cityId, Guid buildingsId);
         Task<IEnumerable<FlatDTO>> GetFlatsByFilter(FlatFilterDTO filterDTO);
         Task<HeatMapDto> GetHeatMapData(Guid cityId);
+        Task<DetailedFlatDto> GetFlatDetails(Guid flatId);
     }
 }

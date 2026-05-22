@@ -38,6 +38,13 @@ namespace RealtyAnalizator.Controllers
             return Ok(result);
         }
 
+        [HttpGet("flats/{flatId}")]
+        public async Task<ActionResult<DetailedFlatDto>> GetFlatDetails([FromRoute] Guid flatId)
+        {
+            var result = await _service.GetFlatDetails(flatId);
+            return Ok(result);
+        }
+
         [HttpPost("search")]
         public async Task<ActionResult<IEnumerable<FlatDTO>>> GetFlatsByFilter([FromBody] FlatFilterDTO filterDTO)
         {

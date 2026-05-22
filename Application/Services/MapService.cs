@@ -47,6 +47,29 @@ namespace Application.Services
             };
         }
 
+        public async Task<DetailedFlatDto> GetFlatDetails(Guid flatId)
+        {
+            var flat = _context.Flats.Include(el => el.Building).FirstOrDefault(el => el.FlatId == flatId);
+            var buildingInfo = flat?.Building;
+            var details = new DetailedFlatDto
+            {
+                Address = buildingInfo.Address,
+                Price = flat.FlatPrice,
+                Area = flat.FlatArea,
+                Floor = flat.FlatFloor,
+                Rooms = flat.FlatRooms,
+                KitchenArea = flat.FlatAreaKitchen,
+                BuildYear = buildingInfo.YearBuild,
+                Material = buildingInfo.WallMaterial.ToString(),
+                hasBalkony = flat.FlatBalcony,
+                PublicationDate = flat.FlatPublished,
+                Source = flat.Source,
+                Finishing = flat.Renovation.ToString()
+            };
+
+            return details;
+        }
+
         public async Task<IEnumerable<FlatDTO>> GetFlatsByFilter(FlatFilterDTO filterDTO)
         {
             var allExistingFlats = _context.Flats.Include(el => el.Building).Where(flat => flat.CityId == filterDTO.CityId);

@@ -1,10 +1,143 @@
 # RealtyService
-для теста данных:
-1) git clone https://github.com/MaxKedroff/RealtyService.git
-2) cd RealtyService
-3) dotnet restore
-4) dotnet run
-5) переходим на http://localhost:5031/swagger/index.html
-6) /api/Parsing/sources - посмотреть доступные парсеры на данный момент
-7) /api/Parsing/parse/{source}/json - вывод данных в json формате, source берется из запроса выше, maxResults опционально, но желательно часто полный сбор не запускать, максимум раз в час
-8) /api/Parsing/parse/{source}/csv - вывод данных в csv формате, source берется из запроса выше, maxResults опционально, но желательно часто полный сбор не запускать, максимум раз в час
+
+Сервис аналитики недвижимости: парсинг объявлений, ML-оценка стоимости, поиск аналогов, тепловые карты и работа с полигонами.
+
+## Быстрый старт
+
+```bash
+git clone https://github.com/MaxKedroff/RealtyService.git
+cd RealtyService
+dotnet restore
+dotnet run
+```
+
+Swagger:
+
+```text
+http://localhost:5031/swagger/index.html
+```
+
+## Эндпоинты API
+
+### Парсинг и синхронизация
+
+| Метод | Эндпоинт | Описание |
+|---|---|---|
+| POST | /v1/Parsing/sync/all | Ручной запуск парсера |
+
+> В production синхронизация запускается автоматически каждый день в 03:00 ночи.
+
+### Предсказания и аналоги
+
+| Метод | Эндпоинт | Описание |
+|---|---|---|
+| GET | /v1/prediction/flat/{{flat_id}} | Оценка стоимости квартиры по ID |
+| POST | /v1/prediction/flat-by-params | Оценка квартиры по параметрам пользователя |
+| GET | /v1/prediction/flat/{{flat_id}}/analogs | Поиск 5 похожих квартир |
+
+### Карта и поиск
+
+| Метод | Эндпоинт | Описание |
+|---|---|---|
+| GET | /v1/map/{{city_id}}/buildings | Список домов в городе |
+| GET | /v1/map/{{city_id}}/{{buildings_id}}/flats | Квартиры в конкретном доме |
+| GET | /v1/map/{{city_id}}/heatmap | Тепловая карта цен и активности |
+| POST | /v1/map/search | Поиск квартир по фильтрам и полигонам |
+
+### Сохранённые полигоны
+
+| Метод | Эндпоинт | Описание |
+|---|---|---|
+| GET | /v1/saved/polygons | Получить все сохранённые полигоны |
+| POST | /v1/saved/polygons | Сохранить новый полигон |
+| PUT | /v1/saved/polygons/{{polygon_id}} | Обновить полигон |
+| DELETE | /v1/saved/{{polygon_id}} | Удалить полигон |
+
+## Как работает система
+
+### Ночная синхронизация
+
+Каждую ночь система:
+
+1. Получает список всех городов
+2. Асинхронно запускает парсинг объявлений
+3. Проверяет каждое объявление по `ExternalId`
+
+Логика обновления:
+
+- Объявление отсутствует в БД → создаётся новая запись
+- Объявление существует без изменений → пропускается
+- Изменились цена или статус → запись обновляется
+
+Все действия логируются для последующей отладки.
+
+## Структура проекта
+
+```text
+Application/          # Контроллеры и бизнес-логика
+Core/                 # Доменные модели и интерфейсы
+Infrastructure/       # База данных и репозитории
+ParsingService/       # Реализация парсеров
+RealtyAnalizator/     # ML и поиск аналогов
+```
+
+## Технологии
+
+- C# / .NET
+- Docker
+- GitHub Actions (CI/CD)
+- Swagger
+
+## Примеры запросов
+
+### Оценка квартиры по параметрам
+
+```bash
+curl -X POST /v1/prediction/flat-by-params \
+  -H "Content-Type: application/json" \
+  -d '{
+    "city":"Москва",
+    "totalArea":45,
+    "rooms":1,
+    "floor":5,
+    "repair":"евро"
+  }'
+```
+
+### Поиск аналогов
+
+```bash
+curl /v1/prediction/flat/12345/analogs
+```
+
+### Поиск на карте с полигоном
+
+```bash
+curl -X POST /v1/map/search \
+  -H "Content-Type: application/json" \
+  -d '{
+    "priceMin":5000000,
+    "priceMax":8000000,
+    "polygon":{
+      "coords":[
+        [55.75,37.62],
+        [55.76,37.63]
+      ]
+    }
+  }'
+```
+
+### Ручной запуск синхронизации
+
+```bash
+curl -X POST /v1/Parsing/sync/all
+```
+
+## Roadmap
+
+- Поддержка нескольких городов для ML
+- История изменения цен
+- Уведомления о выгодных предложениях
+- Кластеризация районов
+- AI-рекомендации по инвестициям
+- GeoJSON-экспорт полигонов

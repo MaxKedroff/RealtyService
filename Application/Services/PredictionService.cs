@@ -186,6 +186,67 @@ namespace Application.Services
             }
         }
 
+        public async Task<List<PredictionResult>> PredictPricesBatchAsync(List<Guid> flatIds)
+        {
+            var results = new List<PredictionResult>();
+            var semaphore = new SemaphoreSlim(50);
+
+            var tasks = flatIds.Select(async flatId =>
+            {
+                await semaphore.WaitAsync();
+                try
+                {
+                    return await PredictPriceAsync(flatId);
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            });
+
+            var allResults = await Task.WhenAll(tasks);
+            results.AddRange(allResults);
+
+            _logger.LogInformation($"Пакетное прогнозирование завершено. Обработано {results.Count} квартир");
+            return results;
+        }
+
+        public async Task<List<FlatAnalogsResult>> GetTopAnalogsBatchAsync(List<Guid> flatIds, int topCount = 10)
+        {
+            var results = new List<FlatAnalogsResult>();
+            var semaphore = new SemaphoreSlim(20); 
+
+            var tasks = flatIds.Select(async flatId =>
+            {
+                await semaphore.WaitAsync();
+                var result = new FlatAnalogsResult { FlatId = flatId };
+                try
+                {
+                    result.Analogs = await GetTopAnalogsAsync(flatId);
+                    if (result.Analogs.Count > topCount)
+                    {
+                        result.Analogs = result.Analogs.Take(topCount).ToList();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    result.Error = ex.Message;
+                    _logger.LogError(ex, $"Ошибка получения аналогов для квартиры {flatId}");
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+                return result;
+            });
+
+            var allResults = await Task.WhenAll(tasks);
+            results.AddRange(allResults);
+
+            _logger.LogInformation($"Пакетное получение аналогов завершено. Обработано {results.Count} квартир");
+            return results;
+        }
+
         private Dictionary<string, object> BuildMlFlat(Flat flat)
         {
             return new Dictionary<string, object>
@@ -406,19 +467,3 @@ public class MLPredictionResponse
 
 #endregion
 
-#region Результат предсказания
-
-public class PredictionResult
-{
-    public DateTime PredictionTime { get; set; }
-    public double ActualPrice { get; set; }
-    public double PredictedPrice { get; set; }
-    public double PredictedPriceMln { get; set; }
-    public double DeviationPercent { get; set; }
-    public string Status { get; set; }
-    public string Recommendation { get; set; }
-    public double Confidence { get; set; }
-    public string ModelVersion { get; set; }
-}
-
-#endregion

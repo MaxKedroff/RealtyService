@@ -168,5 +168,51 @@ namespace RealtyAnalizator.Controllers
                 return StatusCode(500, new { error = "Внутренняя ошибка сервера" });
             }
         }
+
+        [HttpPost("predict-by-parameters")]
+        [ProducesResponseType(typeof(PredictByParametersResult), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> PredictPriceByParameters([FromBody] PredictByParametersRequest request)
+        {
+            try
+            {
+                if (request == null)
+                {
+                    return BadRequest(new { error = "Не указаны параметры квартиры" });
+                }
+
+                if (request.FlatArea <= 0)
+                {
+                    return BadRequest(new { error = "Площадь квартиры должна быть больше 0" });
+                }
+
+                if (request.FlatRooms <= 0 || request.FlatRooms > 10)
+                {
+                    return BadRequest(new { error = "Количество комнат должно быть от 1 до 10" });
+                }
+
+                if (request.FlatFloor <= 0)
+                {
+                    return BadRequest(new { error = "Этаж должен быть больше 0" });
+                }
+
+                _logger.LogInformation($"Запрос прогноза по параметрам: площадь={request.FlatArea}, комнат={request.FlatRooms}, этаж={request.FlatFloor}");
+
+                var result = await _predictionService.PredictPriceByParametersAsync(request);
+
+                return Ok(result);
+            }
+            catch (ArgumentException ex)
+            {
+                _logger.LogWarning(ex.Message);
+                return BadRequest(new { error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при предсказании цены по параметрам");
+                return StatusCode(500, new { error = "Внутренняя ошибка сервера" });
+            }
+        }
     }
 }

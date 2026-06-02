@@ -329,6 +329,91 @@ namespace Application.Services
             return result?.Analogs ?? new List<FlatAnalogDto>();
         }
 
+
+        public async Task<PredictByParametersResult> PredictPriceByParametersAsync(PredictByParametersRequest request)
+        {
+            var result = new PredictByParametersResult
+            {
+                PredictionTime = DateTime.UtcNow,
+                Currency = "RUB"
+            };
+
+            try
+            {
+                var city = await _context.Cities
+                    .FirstOrDefaultAsync(c => c.CityId == request.CityId);
+
+                if (city == null)
+                {
+                    throw new ArgumentException($"Город с ID {request.CityId} не найден");
+                }
+
+                // Формируем запрос к ML сервису
+                var requestData = new Dictionary<string, object>
+                {
+                    ["FLAT_AREA"] = request.FlatArea,
+                    ["FLAT_ROOMS"] = request.FlatRooms,
+                    ["FLAT_FLOOR"] = request.FlatFloor,
+                    ["FLAT_AREA_KITCHEN"] = request.FlatAreaKitchen > 0 ? request.FlatAreaKitchen : request.FlatArea * 0.15,
+                    ["FLAT_AREA_LIVING"] = request.FlatAreaLiving > 0 ? request.FlatAreaLiving : request.FlatArea * 0.7,
+                    ["floor"] = request.FlatFloor,
+                    ["floors_total"] = request.TotalFloors ?? 5,
+                    ["rooms"] = request.FlatRooms,
+                    ["Source"] = request.Source ?? "manual",
+                    ["CITY_ID"] = GetGuidHash(request.CityId),
+                    ["FLAT_BALCONY"] = request.FlatBalcony ?? 0,
+                    ["FLAT_LOGGIA"] = request.FlatLoggia ?? 0,
+                    ["FLAT_FURNITURE"] = request.FlatFurniture ?? 0,
+                    ["TYPES_RENOVATION"] = request.Renovation ?? "without",
+                    ["FLAT_STATUS"] = request.FlatStatus ?? "active",
+                    ["build_year"] = request.BuildYear ?? DateTime.Now.Year - 10,
+                    ["city"] = city.CityName,
+                    ["is_first_floor"] = request.FlatFloor == 1,
+                    ["is_last_floor"] = request.TotalFloors.HasValue && request.FlatFloor == request.TotalFloors.Value,
+                    ["total_area"] = request.FlatArea,
+                    ["FLAT_PRICE_SQM"] = 0 // Неизвестно, будет рассчитано моделью
+                };
+
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    WriteIndented = false
+                };
+
+                var json = JsonSerializer.Serialize(requestData, options);
+                _logger.LogInformation($"Отправка запроса к ML сервису для предсказания по параметрам");
+
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = await _httpClient.PostAsync($"{_mlServiceUrl}/predict", content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseJson = await response.Content.ReadAsStringAsync();
+                    var mlResponse = JsonSerializer.Deserialize<MLPredictionResponse>(responseJson, options);
+
+                    result.PredictedPrice = mlResponse.PredictedPrice;
+                    result.PredictedPriceMln = mlResponse.PredictedPriceMln;
+                    result.ModelVersion = mlResponse.ModelVersion;
+                    result.ModelName = mlResponse.ModelName;
+
+                    _logger.LogInformation($"ML сервис вернул прогноз: {result.PredictedPrice:F0} руб. для квартиры с параметрами");
+                }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    _logger.LogError($"ML сервис вернул ошибку {response.StatusCode}: {errorContent}");
+                    throw new Exception($"Ошибка ML сервиса: {response.StatusCode}");
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при предсказании цены по параметрам");
+                throw;
+            }
+        }
+
         /// <summary>
         /// Определение статуса цены
         /// </summary>

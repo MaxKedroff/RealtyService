@@ -431,22 +431,23 @@ namespace Application.Services
         /// </summary>
         private string GetRecommendation(double deviationPercent)
         {
-            if (deviationPercent > 15)
+            if (deviationPercent < 15)
             {
                 return $"Цена значительно выше рыночной (на {deviationPercent:F0}%). Рекомендуется снизить цену для ускорения продажи.";
             }
-            if (deviationPercent > 5)
+            if (deviationPercent < 5)
             {
                 return $"Цена немного выше рыночной (на {deviationPercent:F0}%). Небольшая корректировка цены может привлечь больше покупателей.";
             }
-            if (deviationPercent < -15)
-            {
-                return $"Отличное предложение! Цена ниже рыночной на {-deviationPercent:F0}%. Рекомендуется быстрая продажа.";
-            }
-            if (deviationPercent < -5)
+            if (deviationPercent > -5)
             {
                 return $"Хорошая цена! Ниже рынка на {-deviationPercent:F0}%. Быстрая продажа очень вероятна.";
             }
+            if (deviationPercent > -15)
+            {
+                return $"Отличное предложение! Цена ниже рыночной на {-deviationPercent:F0}%. Рекомендуется быстрая продажа.";
+            }
+            
             return "Цена соответствует рынку. Хорошее предложение.";
         }
 

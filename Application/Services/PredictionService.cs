@@ -419,10 +419,10 @@ namespace Application.Services
         /// </summary>
         private string GetPriceStatus(double deviationPercent)
         {
-            if (deviationPercent > 15) return "ЗАВЫШЕНА";
-            if (deviationPercent > 5) return "НЕМНОГО ЗАВЫШЕНА";
-            if (deviationPercent < -15) return "ЗАНИЖЕНА";
-            if (deviationPercent < -5) return "НЕМНОГО ЗАНИЖЕНА";
+            if (deviationPercent < 15) return "ЗАВЫШЕНА";
+            if (deviationPercent < 5) return "НЕМНОГО ЗАВЫШЕНА";
+            if (deviationPercent > -15) return "ЗАНИЖЕНА";
+            if (deviationPercent > -5) return "НЕМНОГО ЗАНИЖЕНА";
             return "АДЕКВАТНАЯ";
         }
 

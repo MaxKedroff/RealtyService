@@ -118,33 +118,27 @@ namespace Application.Services
         {
             try
             {
+
+                double latitude = 0;
+                double longitude = 0;
+
+                var coords = ParseGeoPoint(flat.Building.GeoPoint);
+                latitude = coords.Latitude;
+                longitude = coords.Longitude;
+                _logger.LogInformation($"Координаты для квартиры {flat.FlatId}: {latitude}, {longitude}");
+
                 var requestData = new Dictionary<string, object>
                 {
-                    ["flat_id"] = flat.FlatId.ToString(),
-                    ["actual_price"] = flat.FlatPrice,
+                    ["FLAT_AREA_LIVING"] = flat.FlatAreaLiving > 0 ? flat.FlatAreaLiving : flat.FlatArea * 0.7,
+                    ["FLAT_AREA_KITCHEN"] = flat.FlatAreaKitchen > 0 ? flat.FlatAreaKitchen : flat.FlatArea * 0.15,
                     ["FLAT_AREA"] = flat.FlatArea,
                     ["FLAT_ROOMS"] = flat.FlatRooms,
                     ["FLAT_FLOOR"] = flat.FlatFloor,
-                    ["FLAT_PRICE"] = flat.FlatPrice,
-                    ["FLAT_PRICE_SQM"] = flat.FlatPriceSQM,
-                    ["total_area"] = flat.FlatArea,
-                    ["FLAT_AREA_KITCHEN"] = flat.FlatAreaKitchen > 0 ? flat.FlatAreaKitchen : flat.FlatArea * 0.15,
-                    ["FLAT_AREA_LIVING"] = flat.FlatAreaLiving > 0 ? flat.FlatAreaLiving : flat.FlatArea * 0.7,
-                    ["floor"] = flat.FlatFloor,
-                    ["floors_total"] = flat.Building?.TotalFloors,
-                    ["rooms"] = flat.FlatRooms,
-                    ["Source"] = flat.Source,
-                    ["CITY_ID"] = GetGuidHash(flat.CityId),
-                    ["FLAT_BALCONY"] = flat.FlatBalcony,
-                    ["FLAT_LOGGIA"] = flat.FlatLoggia,
-                    ["FLAT_FURNITURE"] = flat.FlatFurniture,
-                    ["TYPES_RENOVATION"] = flat.Renovation.ToString(),
-                    ["FLAT_STATUS"] = flat.FlatStatus,
-                    ["build_year"] = flat.Building?.YearBuild.Year,
-                    ["city"] = flat.City?.CityName,
-                    ["address"] = flat.Building?.Address,
-                    ["is_first_floor"] = flat.FlatFloor == 1,
-                    ["is_last_floor"] = flat.Building != null && flat.FlatFloor == flat.Building.TotalFloors
+                    ["YEAR_BUILDT"] = flat.Building?.YearBuild.Year ?? DateTime.Now.Year - 10,
+                    ["LATITUDE"] = latitude,
+                    ["LONGITUDE"] = longitude,
+                    ["IS_NEW"] = flat.Building?.IsNew ?? false,
+                    ["ADDRESS"] = flat.Building?.Address ?? ""
                 };
 
                 var options = new JsonSerializerOptions
@@ -457,6 +451,42 @@ namespace Application.Services
         public async Task RefreshMlServiceStatus()
         {
             await CheckMlServiceHealth();
+        }
+
+        /// <summary>
+        /// Парсинг геокоординат из строки GeoPoint
+        /// Формат: "55,730214 37,697877" (широта, долгота)
+        /// </summary>
+        private (double Latitude, double Longitude) ParseGeoPoint(string geoPoint)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(geoPoint))
+                    return (0, 0);
+
+                var parts = geoPoint.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+                if (parts.Length == 2)
+                {
+                    var latStr = parts[0].Replace(',', '.');
+                    var lonStr = parts[1].Replace(',', '.');
+
+                    if (double.TryParse(latStr, System.Globalization.NumberStyles.Any,
+                        System.Globalization.CultureInfo.InvariantCulture, out double lat) &&
+                        double.TryParse(lonStr, System.Globalization.NumberStyles.Any,
+                        System.Globalization.CultureInfo.InvariantCulture, out double lon))
+                    {
+                        return (lat, lon);
+                    }
+                }
+
+                return (0, 0);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, $"Ошибка парсинга GeoPoint: {geoPoint}");
+                return (0, 0);
+            }
         }
     }
 }
